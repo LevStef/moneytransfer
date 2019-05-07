@@ -1,4 +1,9 @@
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.GetRequest;
+import org.eclipse.jetty.util.IO;
 import org.junit.After;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -21,7 +26,7 @@ public class TestAll {
 
     @After
     public void cleanup() {
-        con.disconnect();
+        //con.disconnect();
     }
 
     @Test
@@ -56,20 +61,12 @@ public class TestAll {
     }
 
     @Test
-    public void D_newAccountShouldHaveZeroBalance() throws IOException {
-        URL url  = new URL("http://localhost:8080/account/balance");
-        con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
+    public void D_newAccountShouldHaveZeroBalance() throws UnirestException {
+        HttpResponse<String> response = Unirest.get("http://localhost:8080/account/balance")
+                .queryString("id", "0")
+                .asString();
 
-        System.out.println("request method is " + con.getRequestMethod());
-
-        con.setDoOutput(true);
-        DataOutputStream out = new DataOutputStream(con.getOutputStream());
-        out.writeBytes("id=0");
-        out.flush();
-        out.close();
-
-        String responseMsg = parseResponse(con);
+        String responseMsg = response.getBody();
 
         assertEquals("Account Balance: 0.0", responseMsg);
     }
@@ -140,6 +137,17 @@ public class TestAll {
         String responseMsg = parseResponse(con);
 
         assertEquals("Transfered 5.00 from 0 to 1", responseMsg);
+    }
+
+    @Test
+    public void I_balanceAfterTansfer() throws UnirestException {
+        HttpResponse<String> response = Unirest.get("http://localhost:8080/account/balance")
+                .queryString("id", "1")
+                .asString();
+
+        String responseMsg = response.getBody();
+
+        assertEquals("Account Balance: 5.0", responseMsg);
     }
 
 

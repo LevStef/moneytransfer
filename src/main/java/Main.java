@@ -21,7 +21,6 @@ public class Main {
 
         get("/account/balance", (request, response) -> {
             double balance = 0;
-            System.out.println("EUREKA!");
             System.out.println("GET /account/balance: queryParams " + request.queryParams());
             try {
                 int accountID = Integer.parseInt(request.queryParams("id"));
